@@ -1,3 +1,8 @@
+This is an R subroutine that makes it possible to make quality plots
+with a minimal learning curve. You do not need to learn all the ggplot2
+options (right away) to produce nice figures. At the end of this
+document there is a full example.
+
 Prerequisites
 -------------
 
@@ -291,3 +296,29 @@ theme\_classic():
     pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), theme = theme_classic())
 
 ![](README_files/figure-markdown_strict/unnamed-chunk-32-1.png)
+
+Full example
+------------
+
+This is a full documented example that you can copy and adapt to your
+needs. It uses the Cars93 built-in dataset plots miles per gallon in the
+city and on the highway as a function of car price.
+
+    # load plotting libraries and routines
+    library(ggplot2)
+    source("pltptsgg.R")
+
+    # use built-in MASS library
+    library(MASS)
+
+    # create the data curves
+    city.curve <- pltptsgg.get.curve(Cars93$Price * 1000, Cars93$MPG.city)
+    highway.curve <- pltptsgg.get.curve(Cars93$Price * 1000, Cars93$MPG.highway)
+
+    # create the data list
+    data.list <- pltptsgg.get.data(list(city.curve, highway.curve))
+
+    # plot
+    pltptsgg.plot1D(data.list, xlab="Price (USD)", ylab = "Miles per gallon", labels = c("City", "Highway"), legend.name = "Driving location", grid=FALSE)
+
+![](README_files/figure-markdown_strict/unnamed-chunk-33-1.png)
