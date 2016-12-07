@@ -1,0 +1,237 @@
+---
+title: "Making nice 1D plots out of the box"
+author: "Petar Mimica"
+date: "Dec 7, 2016"
+#output: html_document
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(ggplot2)
+library(reshape2)
+library(RColorBrewer)
+library(spatialfil)
+source("~/development/pltptsgg/pltptsgg.R")
+```
+
+## Prerequisites
+
+You need to install the following packages: ggplot2. If you plan to use plotimggg to convolve the arrays, you also need to install spatialfil.
+
+A reminder: to install these packages, you can run the following code:
+
+```{r eval=FALSE, echo=TRUE}
+install.packages("ggplot2")
+```
+
+## Including the plotting routine
+
+For the time being the plotting routine is not an R package, but rather it should be included using the source function. The file can be found here: [plotimggg.R](http://www.uv.es/mimica/Rblog/pltptsgg.R). Put the file somewhere (in your working directory, for example) and include it:
+```{R eval=FALSE, echo=TRUE}
+source("pltptsgg.R")
+```
+
+## 1D plots
+
+### Basic usage
+
+The idea is that we have one or more data series and wish to display them. Let us start with the simplest case of just one series:
+```{R echo=TRUE}
+# generate x
+x <- seq(from = 1, to = 10, by = 0.5)
+
+# compute y from x
+y <- x^2
+```
+
+To plot using pltptsgg.plot1D routine, we need to prepare the data. Since we wish to be able to plot multiple datasets, each with possibly different number of elements, pltptsgg provides two routines to convert the raw data into something pltptsgg.plot1D can easily use. First, we need to create a data frame, either manually or using pltptsgg.get.curve:
+```{R echo=TRUE}
+data.curve <- pltptsgg.get.curve(x, y)
+```
+
+The returned variable is a two-variable data frame (a two-column table), containing the "x" and "y" columns:
+```{R echo=TRUE}
+str(data.curve)
+```
+
+If we were plotting more than one series, we would create curves for each of them and then use pltptsgg.get.data to create a single list. In this case we use the only curve we have:
+```{R echo=TRUE}
+# create the list
+data.list <- pltptsgg.get.data(list(data.curve))
+
+# get information about the list
+str(data.list)
+```
+Note that pltptsgg.get.data return a list of an arbitrary number of data frames, and each data frame contains only two columns named "x" and "y". You can use your own list instead of the one prepared by the routine, as long as the list is in this format.
+
+Now we can call the plotting routine:
+```{R echo=TRUE}
+pltptsgg.plot1D(data.list)
+```
+
+This is the default plot. If you wish to avoid storing the intermediate results, you can inline the other functions into the pltptsgg.plot1D call:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y))))
+```
+
+#### Plotting two series
+Let's add another series to our plot:
+```{R echo=TRUE}
+# generate a new series
+x2 <- c(1, 8, 9)
+y2 <- c(2, 16, 75)
+
+# generate curves
+data.curve1 <- pltptsgg.get.curve(x, y)
+data.curve2 <- pltptsgg.get.curve(x2, y2)
+
+# generate data list
+data.list <- pltptsgg.get.data(list(data.curve1, data.curve2))
+
+# plot
+pltptsgg.plot1D(data.list)
+```
+
+As before, we can use a single call to plot everything:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))))
+```
+
+Note that pltptsgg.get.data accepts a list of data frames as an argument. If you already have a data frame and it contains columns calles "x" and "y", you can pass it directly to pltptsgg.get.data.
+
+#### Plotting points instead of lines
+
+By default the lines are connecting the points. If we wish to plot some of the series as points, we can indicate it via the points logicalvector:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), points=c(FALSE, TRUE))
+```
+
+We can also change the shape type by passing the shapes vector:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), points=c(FALSE, TRUE), shapes=c(0, 1))
+```
+
+Note that the first element of shapes is ignored since we are plotting lines.
+
+#### Changing the line type, width and colour
+
+We can change the linetypes by using the linetypes keyword:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), linetypes=c(2, 4))
+```
+
+To change the width use linesizes:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), linesizes=c(2, 4))
+```
+
+Similarly, the colours keyword changes colours:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), colours=c("red", "yellow"))
+```
+
+### Adjusting legends
+
+By default, the routine labels the curves automatically: "curve01", "curve02", etc. We can adjust this by using labels keyword:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), labels=c("Quantity 1", "Quantity 2"))
+```
+
+The legend title can be changed using the legend.name keyword:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), labels=c("Quantity 1", "Quantity 2"), legend.name = "Quantities shown")
+```
+
+### Adjusting axes
+
+Often the axes generated by ggplot2 are good enough. Nevertheless, pltptsgg.plot1D provides a number of keywords which can be used to adjust them.
+
+#### Axis labels
+
+To change axis labels, use xlab and ylab keywords:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), xlab="time", ylab="space")
+```
+
+#### Axis limits
+
+The limits can be changed using xlim and ylim keywords:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), xlim=c(1, 100), ylim=c(-100, 100))
+```
+
+#### Axis scale
+
+The scale can be changed to logarithmic using xlog and ylog keywords:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), xlog = TRUE, ylog = TRUE)
+```
+
+In order to obtain a more traditional logarithmic plot, with minor grid lines denoting the intermediate values use major.xticks = 10 and minor.yticks = 1 (see below for the explanation of these keywords):
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), xlog = TRUE, ylog = TRUE, major.xticks = 10, major.yticks = 10)
+```
+
+#### Axis number format
+
+Keeping the logarithmic plot example, we may wish to change the number format to powers of 10:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), xlog = TRUE, ylog = TRUE, major.xticks = 10, major.yticks = 10, xformat = "pow", yformat = "pow")
+```
+
+Another option, apart from the defualt one, is the scientific. Reverting to the linear scale for this example:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), xformat = "sci", yformat = "sci")
+```
+
+The number of digits in this format can be changed using xdigits and ydigits keywords:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), xformat = "sci", yformat = "sci", xdigits = 2, ydigits = 6)
+```
+
+#### Axis ticks
+
+We can also change the spacing of the major and minor ticks. For example, we can set the major ticks (the points where numbers will appear) to be multiples of 5 for the x axis and multiples of 50 for the y axis using major.xticks and major.yticks:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), major.xticks = 5, major.yticks = 50)
+```
+
+To set the spacing of the intermediate lines we can use minor.xticks and minor.yticks. Let's add them every 1 unit in x and every 10 units in y:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), major.xticks = 5, major.yticks = 50, minor.xticks = 1, minor.yticks = 10)
+```
+
+For the logarithmic plots it is recommended to use a power of 10 for major ticks and to set minor ticks to 1 (or to omit that keyword, since 1 is the default value). Here are few examples. The "standard" case:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), major.xticks = 10, major.yticks = 10, xlim=c(0.9, 1001), ylim = c(0.9, 1001), xlog = TRUE, ylog = TRUE, xformat="pow", yformat="pow")
+```
+
+Plotting every 100 instead of 10:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), major.xticks = 100, major.yticks = 100, xlim=c(0.9, 1001), ylim = c(0.9, 1001), xlog = TRUE, ylog = TRUE, xformat="pow", yformat="pow")
+```
+
+Changing the number of minor ticks:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), major.xticks = 10, major.yticks = 10, xlim=c(0.9, 1001), ylim = c(0.9, 1001), xlog = TRUE, ylog = TRUE, xformat="pow", yformat="pow", minor.xticks = 2, minor.yticks = 2)
+```
+
+### Disabling grid
+
+By default, ggplot2 plots a grid, but it can be disabled by setting grid = FALSE. This is my preferred option:
+```{r echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), grid = FALSE)
+```
+
+The logarithmic plot also looks nice without a grid:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), major.xticks = 10, major.yticks = 10, xlim=c(0.9, 1001), ylim = c(0.9, 1001), xlog = TRUE, ylog = TRUE, xformat="pow", yformat="pow", grid=FALSE)
+```
+
+### Using custom theme
+
+If you have your own preferred theme, you can replace the one used by pltptsgg.plot1D by using the theme keyword. This sets the theme to theme_classic():
+```{R echo = TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), theme = theme_classic())
+```
