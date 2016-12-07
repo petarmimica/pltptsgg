@@ -18,7 +18,7 @@ Including the plotting routine
 
 For the time being the plotting routine is not an R package, but rather
 it should be included using the source function. The file can be found
-here: [plotimggg.R](http://www.uv.es/mimica/Rblog/pltptsgg.R). Put the
+here: [pltptsgg.R](http://www.uv.es/mimica/Rblog/pltptsgg.R). Put the
 file somewhere (in your working directory, for example) and include it:
 
     source("pltptsgg.R")
@@ -205,7 +205,7 @@ The scale can be changed to logarithmic using xlog and ylog keywords:
 
 In order to obtain a more traditional logarithmic plot, with minor grid
 lines denoting the intermediate values use major.xticks = 10 and
-minor.yticks = 1 (see below for the explanation of these keywords):
+major.yticks = 10 (see below for the explanation of these keywords):
 
     pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), xlog = TRUE, ylog = TRUE, major.xticks = 10, major.yticks = 10)
 

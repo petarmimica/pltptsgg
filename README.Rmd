@@ -29,7 +29,7 @@ install.packages("ggplot2")
 
 ## Including the plotting routine
 
-For the time being the plotting routine is not an R package, but rather it should be included using the source function. The file can be found here: [plotimggg.R](http://www.uv.es/mimica/Rblog/pltptsgg.R). Put the file somewhere (in your working directory, for example) and include it:
+For the time being the plotting routine is not an R package, but rather it should be included using the source function. The file can be found here: [pltptsgg.R](http://www.uv.es/mimica/Rblog/pltptsgg.R). Put the file somewhere (in your working directory, for example) and include it:
 ```{R eval=FALSE, echo=TRUE}
 source("pltptsgg.R")
 ```
@@ -170,7 +170,7 @@ The scale can be changed to logarithmic using xlog and ylog keywords:
 pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), xlog = TRUE, ylog = TRUE)
 ```
 
-In order to obtain a more traditional logarithmic plot, with minor grid lines denoting the intermediate values use major.xticks = 10 and minor.yticks = 1 (see below for the explanation of these keywords):
+In order to obtain a more traditional logarithmic plot, with minor grid lines denoting the intermediate values use major.xticks = 10 and major.yticks = 10 (see below for the explanation of these keywords):
 ```{R echo=TRUE}
 pltptsgg.plot1D(pltptsgg.get.data(list(pltptsgg.get.curve(x, y), pltptsgg.get.curve(x2, y2))), xlog = TRUE, ylog = TRUE, major.xticks = 10, major.yticks = 10)
 ```
