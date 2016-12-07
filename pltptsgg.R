@@ -127,7 +127,7 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
       ret.val <- ret.val + geom_errorbarh(data=data[[i]], aes(x = x, y = y, xmin = x - xerr, xmax = x + xerr), height=errorbar.height)
     }
     if (!is.null(data[[i]]$yerr)) {
-      ret.val <- ret.val + geom_errorbar(data=data[[i]], aes(x = x, y = y, ymin = y - yerr, ymax = y + yerr), width=errorbar.width)
+      ret.val <- ret.val + geom_errorbar(data=data[[i]], aes(x = x, ymin = y - yerr, ymax = y + yerr), width=errorbar.width)
     }
     
   }
