@@ -1,5 +1,5 @@
 # Plotting routine
-pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours = NULL, linesizes = NULL, labels = NULL, legend.name = NULL, points = NULL, shapes = NULL, legend.length = 36, xlog = FALSE, ylog = FALSE, xlim = NULL, ylim = NULL, major.xticks = NULL, minor.xticks = NULL, major.yticks = NULL, minor.yticks = NULL, grid = TRUE, xformat = NULL, yformat = NULL, xdigits = 1, ydigits = 1, xlab=NULL, ylab=NULL) {
+pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours = NULL, linesizes = NULL, labels = NULL, legend.name = NULL, points = NULL, shapes = NULL, legend.length = 36, xlog = FALSE, ylog = FALSE, xlim = NULL, ylim = NULL, major.xticks = NULL, minor.xticks = NULL, major.yticks = NULL, minor.yticks = NULL, grid = TRUE, xformat = NULL, yformat = NULL, xdigits = 1, ydigits = 1, xlab=NULL, ylab=NULL, errorbar.width = 0.05, errorbar.height = 0.05) {
   # my theme
   if (is.null(theme)) {
     mytheme <-  theme_bw()+theme(axis.text=element_text(size=18))+theme(axis.title=element_text(size=18))+theme(axis.line=element_line(size=2))+theme(legend.text=element_text(size=16))+theme(legend.title=element_text(size=18))+theme(legend.key = element_blank(), legend.key.width = unit(legend.length, "points"))
@@ -121,6 +121,15 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
     } else {
       ret.val <- ret.val + geom_line(data = data[[i]], aes(x = x, y = y, colour = which, linetype = linetype), size = mysizes[i])
     }
+    
+    # if the errorbars are present, add them
+    if (!is.null(data[[i]]$xerr)) {
+      ret.val <- ret.val + geom_errorbarh(data=data[[i]], aes(x = x, y = y, xmin = x - xerr, xmax = x + xerr), height=errorbar.height)
+    }
+    if (!is.null(data[[i]]$yerr)) {
+      ret.val <- ret.val + geom_errorbar(data=data[[i]], aes(x = x, y = y, ymin = y - yerr, ymax = y + yerr), width=errorbar.width)
+    }
+    
   }
   
   # add legends
@@ -185,7 +194,7 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
       major.xbreaks <- waiver()
       minor.xbreaks <- waiver()
     }
-    xscl <- scale_x_log10(lim = myxlim, expand = c(0, 0), breaks = major.xbreaks, minor_breaks = minor.xbreaks, labels = xlabels)
+    xscl <- scale_x_log10(expand = c(0, 0), breaks = major.xbreaks, minor_breaks = minor.xbreaks, labels = xlabels)
   } else {
     if (!is.null(major.xticks)) {
       imin <- floor(myxlim[1] / major.xticks)
@@ -204,7 +213,7 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
     }
     
     
-    xscl <- scale_x_continuous(lim = myxlim, expand = c(0, 0), breaks = major.xbreaks, minor_breaks = minor.xbreaks, labels = xlabels)
+    xscl <- scale_x_continuous(expand = c(0, 0), breaks = major.xbreaks, minor_breaks = minor.xbreaks, labels = xlabels)
   }
 
   # set y axis format
@@ -253,7 +262,7 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
       major.ybreaks <- waiver()
       minor.ybreaks <- waiver()
     }
-   yscl <- scale_y_log10(lim = myylim, expand = c(0, 0), breaks = major.ybreaks, minor_breaks = minor.ybreaks, labels = ylabels)
+   yscl <- scale_y_log10(expand = c(0, 0), breaks = major.ybreaks, minor_breaks = minor.ybreaks, labels = ylabels)
   } else {
     if (!is.null(major.yticks)) {
       jmin <- floor(myylim[1] / major.yticks)
@@ -270,7 +279,7 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
     } else {
       minor.ybreaks <- waiver()
     }
-    yscl <- scale_y_continuous(lim = myylim, expand = c(0, 0), breaks = major.ybreaks, minor_breaks = minor.ybreaks, labels = ylabels)
+    yscl <- scale_y_continuous(expand = c(0, 0), breaks = major.ybreaks, minor_breaks = minor.ybreaks, labels = ylabels)
   }
   
   # in case one or two axes are logarithmic, plot the logticks
@@ -299,7 +308,7 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
     ret.val <- ret.val + ylab(ylab)
   
   
-  ret.val <- ret.val + xscl + yscl + myann
+  ret.val <- ret.val + xscl + yscl + myann  + coord_cartesian(xlim=myxlim, ylim=myylim)
   
   
   
@@ -309,11 +318,21 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
 # Packaging routines
 
 # Returns a data frame containing the current curve. A list of these can be passed to pltptsgg.get.data
-pltptsgg.get.curve <- function(x, y) {
+pltptsgg.get.curve <- function(x, y, xerr = NULL, yerr = NULL) {
     if (length(x) != length(y)) {
         stop("Length of x and y must be equal!")
     } else {
-        ret.val <- data.frame(x = x, y = y)   
+        ret.val <- data.frame(x = x, y = y)
+        if (is.null(xerr)) {
+          ret.val$xerr = NULL
+        } else {
+          ret.val$xerr = xerr
+        }
+        if (is.null(yerr)) {
+          ret.val$yerr = NULL
+        } else {
+          ret.val$yerr = yerr
+        }
     }
     
     return(ret.val)
@@ -332,7 +351,18 @@ pltptsgg.get.data <- function(dfs, curve.names = NULL) {
         } else {
             curve.name <- curve.names[i]
         }
+        
         df <- data.frame(x = dfs[[i]]$x, y = dfs[[i]]$y)
+        if (is.null(dfs[[i]]$xerr)) {
+          df$xerr = NULL
+        } else {
+          df$xerr = dfs[[i]]$xerr
+        }
+        if (is.null(dfs[[i]]$yerr)) {
+          df$yerr = NULL
+        } else {
+          df$yerr = dfs[[i]]$yerr
+        }
         ret.val[[i]] <- df
         names(ret.val)[i] <- curve.name
     }

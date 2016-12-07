@@ -259,3 +259,41 @@ data.list <- pltptsgg.get.data(list(city.curve, highway.curve))
 # plot
 pltptsgg.plot1D(data.list, xlab="Price (USD)", ylab = "Miles per gallon", labels = c("City", "Highway"), legend.name = "Driving location", grid=FALSE)
 ```
+
+## Advanced plotting
+
+### Errorbars
+
+It is possible to specify both horizontal and vertical errorbars. Let us go back to our original dataset and add random errors to x and y:
+```{R echo=TRUE}
+# generate x
+x <- seq(from = 1, to = 10, by = 2)
+
+# compute y from x
+y <- x^2
+
+# add errors
+xerr <- runif(length(x), min = -1, max = 1)
+yerr <- runif(length(y), min = -8, max = 8)
+```
+
+Now we can use pltptsgg.get.curve to generate a dataset including errors:
+```{R echo=TRUE}
+data.curve <- pltptsgg.get.curve(x, y, xerr = xerr, yerr = yerr)
+```
+
+Then we call the plotting routine as usual (here plotted with points instead of lines):
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(data.curve)), point=c(TRUE))
+```
+
+We can change the length of the errorbars using errorbar.width and errorbar.height keywords:
+```{R echo=TRUE}
+pltptsgg.plot1D(pltptsgg.get.data(list(data.curve)), point=c(TRUE), errorbar.width = 2, errorbar.height = 10)
+```
+
+Typically only vertical errorbars are present:
+```{R echo=TRUE}
+data.curve <- pltptsgg.get.curve(x, y, yerr = yerr)
+pltptsgg.plot1D(pltptsgg.get.data(list(data.curve)), point=c(TRUE))
+```

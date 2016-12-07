@@ -322,3 +322,47 @@ city and on the highway as a function of car price.
     pltptsgg.plot1D(data.list, xlab="Price (USD)", ylab = "Miles per gallon", labels = c("City", "Highway"), legend.name = "Driving location", grid=FALSE)
 
 ![](README_files/figure-markdown_strict/unnamed-chunk-33-1.png)
+
+Advanced plotting
+-----------------
+
+### Errorbars
+
+It is possible to specify both horizontal and vertical errorbars. Let us
+go back to our original dataset and add random errors to x and y:
+
+    # generate x
+    x <- seq(from = 1, to = 10, by = 2)
+
+    # compute y from x
+    y <- x^2
+
+    # add errors
+    xerr <- runif(length(x), min = -1, max = 1)
+    yerr <- runif(length(y), min = -8, max = 8)
+
+Now we can use pltptsgg.get.curve to generate a dataset including
+errors:
+
+    data.curve <- pltptsgg.get.curve(x, y, xerr = xerr, yerr = yerr)
+
+Then we call the plotting routine as usual (here plotted with points
+instead of lines):
+
+    pltptsgg.plot1D(pltptsgg.get.data(list(data.curve)), point=c(TRUE))
+
+![](README_files/figure-markdown_strict/unnamed-chunk-36-1.png)
+
+We can change the length of the errorbars using errorbar.width and
+errorbar.height keywords:
+
+    pltptsgg.plot1D(pltptsgg.get.data(list(data.curve)), point=c(TRUE), errorbar.width = 2, errorbar.height = 10)
+
+![](README_files/figure-markdown_strict/unnamed-chunk-37-1.png)
+
+Typically only vertical errorbars are present:
+
+    data.curve <- pltptsgg.get.curve(x, y, yerr = yerr)
+    pltptsgg.plot1D(pltptsgg.get.data(list(data.curve)), point=c(TRUE))
+
+![](README_files/figure-markdown_strict/unnamed-chunk-38-1.png)
