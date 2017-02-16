@@ -4,7 +4,7 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
   if (is.null(theme)) {
     mytheme <-  theme_bw()+theme(axis.text=element_text(size=18))+theme(axis.title=element_text(size=18))+theme(axis.line=element_line(size=2))+theme(legend.text=element_text(size=16))+theme(legend.title=element_text(size=18))+theme(legend.key = element_blank(), legend.key.width = unit(legend.length, "points"))
     if (grid) {
-      mytheme <- mytheme + theme(panel.grid.major = element_line(size=0.75, colour="darkgray"), panel.grid.minor = element_line(size=0.4, colour="gray"), panel.border = element_blank(), panel.background = element_blank())
+      mytheme <- mytheme + theme(panel.grid.major = element_line(size=0.5, colour="darkgray"), panel.grid.minor = element_line(size=0.2, colour="gray"), panel.border = element_blank(), panel.background = element_blank())
     } else {
       mytheme <- mytheme + theme(panel.grid.major = element_line(size=0, colour="white"), panel.grid.minor = element_line(size=0, colour="white"), panel.border = element_blank(), panel.background = element_blank(), axis.line.x = element_line(size = 1, colour="black"), axis.line.y = element_line(size = 1, colour="black"), axis.ticks.x = element_line(size = 1), axis.ticks.length = unit(-15, "points"), axis.text.x = element_text(margin=unit(c(25, 0, 0, 0), "points")), axis.text.y = element_text(margin=unit(c(0, 25, 0, 0), "points")))
     }
@@ -13,22 +13,32 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
   }
   
   # set line types
+  plot.both <- vector("logical", length(data))
   if (is.null(linetypes)) {
-    mytypes <- rep(c(1, 2, 3, 4, 5, 6), 16)
+    mytypes <- rep((1:19), 16)
+    plot.both[] <- FALSE
   } else {
     mytypes <- linetypes
+    for (i in 1:length(mytypes)) {
+      if (mytypes[i] < 0) {
+        plot.both[i] = TRUE
+        mytypes[i] = -mytypes[i]
+      } else {
+        plot.both[i] = FALSE
+      }
+    }
   }
   
   # set line sizes
   if (is.null(linesizes)) {
-    mysizes <- rep(1, 64)
+    mysizes <- rep(1, length(data))
   } else {
     mysizes <- linesizes
   }
   
   # set symbol shapes
   if (is.null(shapes)) {
-    myshapes <- rep(c(1, 2, 3, 4, 5, 6), 16)
+    myshapes <- (rep((1:19), 16))[1:length(data)]
   } else {
     myshapes <- shapes
   }
@@ -37,21 +47,21 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
   if (!is.null(colours)) {
     mycolours <- colours
   } else {
-    mycolours <- rep(c("black", "red", "blue", "green", "orange", "gray"), 16)
+    mycolours <- (rep(c("black", "red", "blue", "green", "orange", "gray"), 16))[1:length(data)]
   }
   
   # set labels
   if (!is.null(labels)) {
     mylabels <- labels
   } else {
-    mylabels <- vector(mode = "numeric", length = length(data))
+    mylabels <- vector(mode = "character", length = length(data))
     for (i in 1:length(data)) {
       mylabels[i] <- (names(data))[i]
     }
   }
-  
+
   # generate colour scale to be used for the legend
-  mycolourscale <- vector("character", length(data))
+  mycolourscale <- vector("numeric", length(data))
   for (i in 1:length(data)) {
     mycolourscale[i] <- mycolours[i]
     names(mycolourscale)[i] <- mylabels[i]
@@ -90,7 +100,9 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
     data[[i]]$which <- rep(mylabels[i], length(data[[i]]$x))
     data[[i]]$linetype <- rep(mylabels[i], length(data[[i]]$x))
     data[[i]]$points <- rep(mypoints[i], length(data[[i]]$x))
+    data[[i]]$linesize <- rep(mysizes[i], length(data[[i]]$x))
   }
+
   
   # additional auxiliary variables to be able to correctly plot a mixture of lines and points
   myltypes <- mytypes[1:length(data)]
@@ -99,7 +111,7 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
   myltypes[mypoints] <- 0
   mylshapes[!mypoints] <- NA
   
-  # determine axis limits automatically
+  # determine the axis limits automatically
   minx <- min(data[[1]]$x)
   maxx <- max(data[[1]]$x)
   miny <- min(data[[1]]$y)
@@ -115,11 +127,14 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
     miny <- min(c(miny, data[[i]]$y))
     maxy <- max(c(maxy, data[[i]]$y))
     
-    # add either a point (scatter) or a line plot
-    if (mypoints[i]) {
+    # add a point (scatter) or a line plot
+    
+    if (mypoints[i] || plot.both[i]) {
       ret.val <- ret.val + geom_point(data = data[[i]], aes(x = x, y = y, colour = which, shape = which))
-    } else {
-      ret.val <- ret.val + geom_line(data = data[[i]], aes(x = x, y = y, colour = which, linetype = linetype), size = mysizes[i])
+    } 
+    
+    if (!mypoints[i]) {
+      ret.val <- ret.val + geom_line(data = data[[i]], aes(x = x, y = y, colour = which, linetype = which, linesize = which), size = mysizes[i])
     }
     
     # if the errorbars are present, add them
@@ -127,13 +142,13 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
       ret.val <- ret.val + geom_errorbarh(data=data[[i]], aes(x = x, y = y, xmin = x - xerr, xmax = x + xerr), height=errorbar.height)
     }
     if (!is.null(data[[i]]$yerr)) {
-      ret.val <- ret.val + geom_errorbar(data=data[[i]], aes(x = x, y = y, ymin = y - yerr, ymax = y + yerr), width=errorbar.width)
+      ret.val <- ret.val + geom_errorbar(data=data[[i]], aes(x = x, ymin = y - yerr, ymax = y + yerr), width=errorbar.width)
     }
     
   }
   
   # add legends
-  ret.val <- ret.val + scale_colour_manual(name=mylegendname, values=mycolourscale) + scale_linetype_manual(name=mylegendname, values=mylinetypescale, guide="none") + scale_shape_manual(name=mylegendname, values=myshapescale, guide="none") + guides(colour = guide_legend(override.aes = list(shape=mylshapes, linetype = myltypes)))
+  ret.val <- ret.val + scale_colour_manual(name=mylegendname, values=mycolourscale, breaks=mylabels) + scale_linetype_manual(name=mylegendname, values=mylinetypescale, guide="none", breaks=mylabels) + scale_shape_manual(name=mylegendname, values=myshapescale, guide="none", breaks=mylabels) + guides(colour = guide_legend(override.aes = list(shape=mylshapes, linetype=myltypes, size = mysizes)))
    
   # set the axis limits
   if (is.null(xlim)) {
@@ -299,6 +314,7 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
   } else {
     myann <- NULL
   }
+ 
   
   # set axis labels
   if (!is.null(xlab))
@@ -309,9 +325,7 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
   
   
   ret.val <- ret.val + xscl + yscl + myann  + coord_cartesian(xlim=myxlim, ylim=myylim)
-  
-  
-  
+ 
   return(ret.val)
 }
 
