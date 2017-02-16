@@ -100,7 +100,6 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
     data[[i]]$which <- rep(mylabels[i], length(data[[i]]$x))
     data[[i]]$linetype <- rep(mylabels[i], length(data[[i]]$x))
     data[[i]]$points <- rep(mypoints[i], length(data[[i]]$x))
-    data[[i]]$linesize <- rep(mysizes[i], length(data[[i]]$x))
   }
 
   
@@ -134,11 +133,7 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
     } 
     
     if (!mypoints[i]) {
-<<<<<<< HEAD
-      ret.val <- ret.val + geom_line(data = data[[i]], aes(x = x, y = y, colour = which, linetype = which, linesize = which), size = mysizes[i])
-=======
-      ret.val <- ret.val + geom_line(data = data[[i]], aes(x = x, y = y, colour = which, linetype = which), size = mysizes[i])
->>>>>>> fbeef4362b9f2bc9b0d9ff8162085fb70647faba
+      ret.val <- ret.val + geom_line(data = data[[i]], aes(x = x, y = y, colour = which, linetype = which), size = linesizes[i])
     }
     
     # if the errorbars are present, add them
@@ -152,12 +147,8 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
   }
   
   # add legends
-<<<<<<< HEAD
-  ret.val <- ret.val + scale_colour_manual(name=mylegendname, values=mycolourscale, breaks=mylabels) + scale_linetype_manual(name=mylegendname, values=mylinetypescale, guide="none", breaks=mylabels) + scale_shape_manual(name=mylegendname, values=myshapescale, guide="none", breaks=mylabels) + guides(colour = guide_legend(override.aes = list(shape=mylshapes, linetype=myltypes, size = mysizes)))
-=======
-  ret.val <- ret.val + scale_colour_manual(name=mylegendname, values=mycolourscale, breaks=mylabels) + scale_linetype_manual(name=mylegendname, values=mylinetypescale, guide="none", breaks=mylabels) + scale_shape_manual(name=mylegendname, values=myshapescale, guide="none", breaks=mylabels) + guides(colour = guide_legend(override.aes = list(shape=mylshapes, linetype=myltypes)))
->>>>>>> fbeef4362b9f2bc9b0d9ff8162085fb70647faba
-   
+  ret.val <- ret.val + scale_colour_manual(name=mylegendname, values=mycolourscale, breaks=mylabels) + scale_linetype_manual(name=mylegendname, values=mylinetypescale, guide="none", breaks=mylabels) + scale_shape_manual(name=mylegendname, values=myshapescale, guide="none", breaks=mylabels) + guides(colour = guide_legend(override.aes = list(shape=mylshapes, linetype=myltypes, size=mysizes)))
+
   # set the axis limits
   if (is.null(xlim)) {
     myxlim <- c(minx, maxx)
