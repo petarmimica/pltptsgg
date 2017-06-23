@@ -129,11 +129,11 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
     # add a point (scatter) or a line plot
     
     if (mypoints[i] || plot.both[i]) {
-      ret.val <- ret.val + geom_point(data = data[[i]], aes(x = x, y = y, colour = which, shape = which))
+      ret.val <- ret.val + geom_point(data = data[[i]], aes(x = x, y = y, colour = which, shape = which), size = mysizes[i])
     } 
     
     if (!mypoints[i]) {
-      ret.val <- ret.val + geom_line(data = data[[i]], aes(x = x, y = y, colour = which, linetype = which), size = linesizes[i])
+      ret.val <- ret.val + geom_line(data = data[[i]], aes(x = x, y = y, colour = which, linetype = which), size = mysizes[i])
     }
     
     # if the errorbars are present, add them
