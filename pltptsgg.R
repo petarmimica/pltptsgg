@@ -1,12 +1,12 @@
 # Plotting routine
-pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours = NULL, linesizes = NULL, labels = NULL, legend.name = NULL, points = NULL, shapes = NULL, legend.length = 36, xlog = FALSE, ylog = FALSE, xlim = NULL, ylim = NULL, major.xticks = NULL, minor.xticks = NULL, major.yticks = NULL, minor.yticks = NULL, grid = TRUE, xformat = NULL, yformat = NULL, xdigits = 1, ydigits = 1, xlab=NULL, ylab=NULL, errorbar.width = 0.05, errorbar.height = 0.05) {
+pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours = NULL, linesizes = NULL, labels = NULL, legend.name = NULL, points = NULL, shapes = NULL, legend.length = 36, xlog = FALSE, ylog = FALSE, xlim = NULL, ylim = NULL, major.xticks = NULL, minor.xticks = NULL, major.yticks = NULL, minor.yticks = NULL, grid = TRUE, xformat = NULL, yformat = NULL, xdigits = 1, ydigits = 1, xlab=NULL, ylab=NULL, errorbar.width = 0.05, errorbar.height = 0.05, tick.size = 1, tick.len = -15, axis.size = 1) {
   # my theme
   if (is.null(theme)) {
     mytheme <-  theme_bw()+theme(axis.text=element_text(size=18))+theme(axis.title=element_text(size=18))+theme(axis.line=element_line(size=2))+theme(legend.text=element_text(size=16))+theme(legend.title=element_text(size=18))+theme(legend.key = element_blank(), legend.key.width = unit(legend.length, "points"))
     if (grid) {
       mytheme <- mytheme + theme(panel.grid.major = element_line(size=0.5, colour="darkgray"), panel.grid.minor = element_line(size=0.2, colour="gray"), panel.border = element_blank(), panel.background = element_blank())
     } else {
-      mytheme <- mytheme + theme(panel.grid.major = element_line(size=0, colour="white"), panel.grid.minor = element_line(size=0, colour="white"), panel.border = element_blank(), panel.background = element_blank(), axis.line.x = element_line(size = 1, colour="black"), axis.line.y = element_line(size = 1, colour="black"), axis.ticks.x = element_line(size = 1), axis.ticks.length = unit(-15, "points"), axis.text.x = element_text(margin=unit(c(25, 0, 0, 0), "points")), axis.text.y = element_text(margin=unit(c(0, 25, 0, 0), "points")))
+      mytheme <- mytheme + theme(panel.grid.major = element_line(size=0, colour="white"), panel.grid.minor = element_line(size=0, colour="white"), panel.border = element_blank(), panel.background = element_blank(), axis.line.x = element_line(size = axis.size, colour="black"), axis.line.y = element_line(size = axis.size, colour="black"), axis.ticks.x = element_line(size = tick.size), axis.ticks.y = element_line(size = tick.size), axis.ticks.length = unit(tick.len, "points"), axis.text.x = element_text(margin=unit(c(25, 0, 0, 0), "points")), axis.text.y = element_text(margin=unit(c(0, 25, 0, 0), "points")))
     }
   } else {
     mytheme <- theme
@@ -309,7 +309,7 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
       }
     }
     
-    myann <- annotation_logticks(sides = sides, long = unit(15, "points"), mid = unit(10, "points"), short = unit(8, "points"))
+    myann <- annotation_logticks(sides = sides, long = unit(-tick.len, "points"), mid = unit(-tick.len * 2/3, "points"), short = unit(-tick.len * 1/3, "points"), size = tick.size)
   } else {
     myann <- NULL
   }

@@ -2,8 +2,11 @@
 title: "Making nice 1D plots out of the box"
 author: "Petar Mimica"
 date: "Dec 7, 2016"
-#output: html_document
-output: md_document
+output:
+  md_document:
+    variant: markdown_github
+  html_notebook: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
