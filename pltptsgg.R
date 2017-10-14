@@ -3,13 +3,12 @@ pltptsgg.plot1D <- function(data = NULL, theme = NULL, linetypes = NULL, colours
   # my theme
   if (is.null(theme)) {
     mytheme <-  theme_bw()+theme(axis.text=element_text(size=18))+theme(axis.title=element_text(size=18))+theme(axis.line=element_line(size=2))+theme(legend.text=element_text(size=16))+theme(legend.title=element_text(size=18))+theme(legend.key = element_blank(), legend.key.width = unit(legend.length, "points"))
-    if (grid) {
-      mytheme <- mytheme + theme(panel.grid.major = element_line(size=0.5, colour="darkgray"), panel.grid.minor = element_line(size=0.2, colour="gray"), panel.border = element_blank(), panel.background = element_blank())
-    } else {
-      mytheme <- mytheme + theme(panel.grid.major = element_line(size=0, colour="white"), panel.grid.minor = element_line(size=0, colour="white"), panel.border = element_blank(), panel.background = element_blank(), axis.line.x = element_line(size = axis.size, colour="black"), axis.line.y = element_line(size = axis.size, colour="black"), axis.ticks.x = element_line(size = tick.size), axis.ticks.y = element_line(size = tick.size), axis.ticks.length = unit(tick.len, "points"), axis.text.x = element_text(margin=unit(c(25, 0, 0, 0), "points")), axis.text.y = element_text(margin=unit(c(0, 25, 0, 0), "points")))
-    }
-  } else {
+  } else
     mytheme <- theme
+  if (grid) {
+    mytheme <- mytheme + theme(panel.grid.major = element_line(size=0.5, colour="darkgray"), panel.grid.minor = element_line(size=0.2, colour="gray"), panel.border = element_blank(), panel.background = element_blank())
+  } else {
+    mytheme <- mytheme + theme(panel.grid.major = element_line(size=0, colour="white"), panel.grid.minor = element_line(size=0, colour="white"), panel.border = element_blank(), panel.background = element_blank(), axis.line.x = element_line(size = axis.size, colour="black"), axis.line.y = element_line(size = axis.size, colour="black"), axis.ticks.x = element_line(size = tick.size), axis.ticks.y = element_line(size = tick.size), axis.ticks.length = unit(tick.len, "points"), axis.text.x = element_text(margin=unit(c(25, 0, 0, 0), "points")), axis.text.y = element_text(margin=unit(c(0, 25, 0, 0), "points")))
   }
   
   # set line types
